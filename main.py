@@ -1,6 +1,9 @@
 from pygame import locals as const
 import pygame
 import sys
+import os.path
+
+from celestials import Sun
 
 
 # Missing Mouse button constants
@@ -21,18 +24,27 @@ resolution = (640, 480)
 window = pygame.display.set_mode(resolution)
 pygame.display.set_caption('Space Battle')
 
-background = pygame.image.load('stars.jpg')
+background = pygame.image.load(os.path.join('Resources', 'stars.jpg'))
 
 count = 0
 
 WHITE = pygame.Color(255, 255, 255)
 FPS = 30
 
+
+sun = Sun(resolution[0] / 2, resolution[1] / 2)
+pullable = []
+
+
 running = True
 while running:
     window.fill(WHITE)
 
     window.blit(background, background.get_rect())
+
+
+    # Take care of all the events
+    event_handler.handle(pygame.event.get())
 
     # Event handling
     for event in pygame.event.get():
@@ -53,6 +65,11 @@ while running:
 
             if event.key == const.K_a and event.mod & (const.KMOD_META | const.KMOD_SHIFT):
                 print '!!'
+
+
+    # Apply the gravity well effects
+    for obj in pullable:
+        sun.pull_obj(obj)
 
 
 
