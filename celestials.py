@@ -14,8 +14,8 @@ class Sun(Sprite, well.GravityWell):
     def set_fps(fps):
         Sun.FPS = fps
 
-    def __init__(self, x, y):
-        self.image = Sun.IMAGE
+    def __init__(self, x, y, radius):
+        self.image = pygame.transform.smoothscale(Sun.IMAGE, (radius * 2, radius * 2))
 
         self._x = x
         self._y = y
@@ -23,8 +23,8 @@ class Sun(Sprite, well.GravityWell):
         super(Sun, self).__init__()
 
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.centerx = x
+        self.rect.centery = y
 
         self._counter = pygame.time.get_ticks()
         self._delay = 1000 / Sun.FPS

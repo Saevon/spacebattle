@@ -33,7 +33,7 @@ FPS = 30
 
 
 Sun.set_fps(FPS)
-sun = Sun(resolution[0] / 2, resolution[1] / 2)
+sun = Sun(resolution[0] / 2, resolution[1] / 2, 50)
 pullable = []
 sun.set_pullable(pullable)
 
@@ -43,7 +43,7 @@ while running:
     window.fill(WHITE)
 
     window.blit(background, background.get_rect())
-    window.blit(sun.image, sun.image.get_rect())
+    window.blit(sun.image, sun.rect)
 
     # Event handling
     for event in pygame.event.get():
