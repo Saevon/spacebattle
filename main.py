@@ -58,7 +58,7 @@ while running:
             event.button == MOUSEKEY_RIGHT
 
         elif event.type == const.KEYDOWN:
-            if event.key == const.K_q and event.mod & const.KMOD_META:
+            if event.key == const.K_q and ((event.mod & const.KMOD_META) or (event.mod & const.KMOD_ALT)):
                 pygame.quit()
                 sys.exit()
 
