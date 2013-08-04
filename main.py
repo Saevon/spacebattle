@@ -43,6 +43,7 @@ while running:
     window.fill(WHITE)
 
     window.blit(background, background.get_rect())
+    window.blit(sun.image, sun.image.get_rect())
 
     # Event handling
     for event in pygame.event.get():
