@@ -32,8 +32,10 @@ WHITE = pygame.Color(255, 255, 255)
 FPS = 30
 
 
+Sun.set_fps(FPS)
 sun = Sun(resolution[0] / 2, resolution[1] / 2)
 pullable = []
+sun.set_pullable(pullable)
 
 
 running = True
@@ -41,10 +43,6 @@ while running:
     window.fill(WHITE)
 
     window.blit(background, background.get_rect())
-
-
-    # Take care of all the events
-    event_handler.handle(pygame.event.get())
 
     # Event handling
     for event in pygame.event.get():
