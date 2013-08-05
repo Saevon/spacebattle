@@ -5,7 +5,15 @@ from ship import Ship
 import pygame
 import sys
 
+# Missing Mouse button constants
+const.MOUSEKEY_LEFT = 1
+const.MOUSEKEY_MIDDLE = 2
+const.MOUSEKEY_RIGHT = 3
 
+const.MOUSEKEY_SCROLLUP = 4
+const.MOUSEKEY_SCROLLDOWN = 5
+
+# Start up our event handler
 handler = EventHandler()
 
 @handler.quit

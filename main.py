@@ -9,14 +9,6 @@ from ship import Ship
 import events
 
 
-# Missing Mouse button constants
-MOUSEKEY_LEFT = 1
-MOUSEKEY_MIDDLE = 2
-MOUSEKEY_RIGHT = 3
-
-MOUSEKEY_SCROLLUP = 4
-MOUSEKEY_SCROLLDOWN = 5
-
 # KeyDown Booleans
 aDown = False
 dDown = False
@@ -68,12 +60,13 @@ sprites.add(ship)
 # for celestial in celestials:
 #     celestial.pull_on(ship)
 
+# Global object that an event can manipulate
 events.handler.context = Context({
     'ship': ship,
 })
 
-running = True
-while running:
+
+while True:
     window.fill(WHITE)
 
     window.blit(background, background.get_rect())
