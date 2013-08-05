@@ -1,10 +1,11 @@
 from pygame.sprite import Sprite
 import pygame
 
-import os.path
+import os
 
 from math import cos, sin, atan2, degrees, pi, sqrt
 from random import randrange
+from random import choice as randchoice
 import well
 
 
@@ -100,17 +101,33 @@ class Sun(Celestial):
 
 
 class Planet(Celestial):
-    IMAGE = pygame.image.load(os.path.join('Resources', 'sprites', 'planets', 'Planet.png'))
+    IMAGE_PATH = os.path.join('Resources', 'sprites', 'planets')
 
     PLANET_MASS_CONST = 1 * 10 ** 27
     MASS_RANGE = (1, 16)
 
-    def __init__(self, x, y, radius=None, mass=None):
+    @staticmethod
+    def load():
+        Planet.IMAGES = {}
+
+        for key in os.listdir(Planet.IMAGE_PATH):
+            # ignore hidden files
+            if key.startswith('.'):
+                continue
+
+            Planet.IMAGES[os.path.splitext(key)[0]] = pygame.image.load(
+                os.path.join(Planet.IMAGE_PATH, key)
+            )
+
+    def __init__(self, x, y, radius=None, mass=None, image=None):
         if radius is None:
             radius = 20
         self.radius = radius
 
-        self.image = pygame.transform.smoothscale(Planet.IMAGE, (self.radius * 2, self.radius * 2))
+        if image is None or image not in Planet.IMAGES.keys():
+            image = randchoice(Planet.IMAGES.keys())
+
+        self.image = pygame.transform.smoothscale(Planet.IMAGES[image], (self.radius * 2, self.radius * 2))
 
         if mass is None:
             mass = Planet.PLANET_MASS_CONST * randrange(Planet.MASS_RANGE[0], Planet.MASS_RANGE[1])
@@ -131,7 +148,7 @@ class Planet(Celestial):
         self.rect.centery = self.y
 
 
-    def orbit(self, obj, distance):
+    def orbit(self, obj, distance, speed=None):
         '''
         TODO: use GravityWell.satellite() to figure out the minimal speed needed
         TODO: elliptical orbits?
@@ -139,7 +156,9 @@ class Planet(Celestial):
         self.orbit = obj
         self.distance = distance
 
-        self.speed = randrange(10, 15)
+        if speed is None:
+            speed = randrange(10, 15)
+        self.speed = speed
 
 #     def orbit(self, obj, distance):
 #         obj.pull_on(self)
