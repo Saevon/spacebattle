@@ -39,6 +39,7 @@ pullable = []
 sun.set_pullable(pullable)
 
 # Create Ship
+Ship.set_fps(FPS)
 ship = Ship()
 
 running = True
@@ -66,8 +67,11 @@ while running:
                 pygame.quit()
                 sys.exit()
 
-            if event.key == const.K_a and event.mod & (const.KMOD_META | const.KMOD_SHIFT):
-                print '!!'
+            if event.key == const.K_a:
+                ship.rotate(Ship.ROT_LEFT)
+
+            if event.key == const.K_d:
+                ship.rotate(Ship.ROT_RIGHT)
 
 
     # Apply the gravity well effects
