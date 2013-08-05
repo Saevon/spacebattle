@@ -15,6 +15,9 @@ MOUSEKEY_RIGHT = 3
 MOUSEKEY_SCROLLUP = 4
 MOUSEKEY_SCROLLDOWN = 5
 
+# KeyDown Booleans
+aDown = False
+dDown = False
 
 # Pygame startup MUST HAPPEN FIRST
 pygame.init()
@@ -82,10 +85,26 @@ while running:
 
             if event.key == const.K_a:
                 ship.rotate(Ship.ROT_LEFT)
+                aDown = True
 
             if event.key == const.K_d:
                 ship.rotate(Ship.ROT_RIGHT)
+                dDown = True
 
+        elif event.type == const.KEYUP:
+            if event.key == const.K_a:
+                aDown = False
+                if dDown:
+                    ship.rotate(Ship.ROT_RIGHT)
+                else:
+                    ship.rotate(Ship.ROT_STOP)
+
+            if event.key == const.K_d:
+                dDown = False
+                if aDown:
+                    ship.rotate(Ship.ROT_LEFT)
+                else:
+                    ship.rotate(Ship.ROT_STOP)
 
     sprites.update(pygame.time.get_ticks())
 
