@@ -1,16 +1,13 @@
 
 
 class GravityWell(object):
+    '''
+    Mixin providing gravity well calculations
+    requires that self.mass be defined
+    '''
 
     # Universal Gravitational Constant
     UGC = 6.67 / 10 ** 11
-
-    def __init__(self, mass=None):
-        if mass is not None:
-            self.set_mass(mass)
-
-    def set_mass(self, mass):
-        self.mass = mass
 
     def escape_velocity(self, height):
         '''

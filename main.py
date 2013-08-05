@@ -3,7 +3,7 @@ import pygame
 import sys
 import os.path
 
-from celestials import Sun
+from celestials import Sun, Planet
 from ship import Ship
 
 
@@ -32,23 +32,36 @@ count = 0
 WHITE = pygame.Color(255, 255, 255)
 FPS = 30
 
+sprites = pygame.sprite.Group()
+
 # Create Sun
 Sun.set_fps(FPS)
 sun = Sun(resolution[0] / 2, resolution[1] / 2, 50)
-pullable = []
-sun.set_pullable(pullable)
+sprites.add(sun)
+
+planet = Planet(0, 0, 8)
+planet.orbit(sun, 140)
+sprites.add(planet)
+
+planet = Planet(0, 0, 10)
+planet.orbit(sun, 60)
+sprites.add(planet)
+
+planet = Planet(0, 0, 30)
+planet.orbit(sun, 200)
+sprites.add(planet)
 
 # Create Ship
 Ship.set_fps(FPS)
 ship = Ship()
+sprites.add(ship)
 
 running = True
 while running:
     window.fill(WHITE)
 
     window.blit(background, background.get_rect())
-    window.blit(sun.image, sun.rect)
-    window.blit(ship.image, ship.rect)
+    sprites.draw(window)
 
     # Event handling
     for event in pygame.event.get():
@@ -74,13 +87,7 @@ while running:
                 ship.rotate(Ship.ROT_RIGHT)
 
 
-    # Apply the gravity well effects
-    for obj in pullable:
-        sun.pull_obj(obj)
-
-
-
-
+    sprites.update(pygame.time.get_ticks())
 
     # Draw the screen ever FPS frames
     pygame.display.update()

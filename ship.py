@@ -7,6 +7,8 @@ class Ship(pygame.sprite.Sprite):
     ROT_LEFT = 2
 
     def __init__(self):
+        super(Ship, self).__init__()
+
         self.rect = Ship.IMAGE.get_rect()
 
         self.width = self.rect.width / 4
@@ -17,19 +19,19 @@ class Ship(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = 50
         self.rect.centery = 50
-        
+
         self._direction = 0
         self._delay = 1000 / Ship.FPS
 
     @staticmethod
     def set_fps(fps):
         Ship.FPS = fps
-        
+
     def move():
         '''
 
         '''
-        
+
     def rotate(self, d):
         '''
         
