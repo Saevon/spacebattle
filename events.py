@@ -17,19 +17,19 @@ def quit(context):
 
 @handler.keydown(const.K_d)
 def rotate_left(context):
-    context.ship.rotate(Ship.ROT_LEFT)
-
-@handler.keyup(const.K_d)
-def rotate_left(context):
-    context.ship.rotate(Ship.ROT_LEFT, stop=True)
-
-@handler.keydown(const.K_a)
-def rotate_right(context):
     context.ship.rotate(Ship.ROT_RIGHT)
 
-@handler.keyup(const.K_a)
-def stop_rotate(context):
+@handler.keyup(const.K_d)
+def rotate_right_stop(context):
     context.ship.rotate(Ship.ROT_RIGHT, stop=True)
+
+@handler.keydown(const.K_a)
+def rotate_left(context):
+    context.ship.rotate(Ship.ROT_LEFT)
+
+@handler.keyup(const.K_a)
+def rotate_left_stop(context):
+    context.ship.rotate(Ship.ROT_LEFT, stop=True)
 
 DEBUG = False
 if DEBUG:

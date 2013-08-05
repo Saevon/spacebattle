@@ -142,7 +142,7 @@ class EventHandler(object):
                 if handlers:
                     map(lambda handler: handler(context), handlers)
             elif event.type == const.KEYUP:
-                handlers = self.on_keydown.get(event.key, False)
+                handlers = self.on_keyup.get(event.key, False)
                 if handlers:
                     map(lambda handler: handler(context), handlers)
 

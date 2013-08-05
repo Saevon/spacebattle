@@ -17,6 +17,9 @@ MOUSEKEY_RIGHT = 3
 MOUSEKEY_SCROLLUP = 4
 MOUSEKEY_SCROLLDOWN = 5
 
+# KeyDown Booleans
+aDown = False
+dDown = False
 
 # Pygame startup MUST HAPPEN FIRST
 pygame.init()
@@ -76,6 +79,7 @@ while running:
     window.blit(background, background.get_rect())
     sprites.draw(window)
 
+    # Events!
     events.handler(pygame.event.get())
 
     # Draw the screen ever FPS frames
