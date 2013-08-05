@@ -14,10 +14,15 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
 
     @classmethod
     def load(cls):
-        super(Ship, cls).load()
+        for out in super(Ship, cls).load():
+            yield out
+
+        yield '  Resizing ImageBatch for %s' % cls.__name__
 
         Ship.SCALED_IMAGES = {}
         for key, value in Ship.IMAGES.iteritems():
+            yield '    %s' % key
+
             rect = value.get_rect()
 
             width = rect.width / 4

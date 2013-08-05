@@ -5,20 +5,27 @@ import os.path
 from celestials import Sun, Planet
 from event_handler import Context
 from ship import Ship
+from time import time
 
 import background
 import events
 
 
-
-# KeyDown Booleans
-aDown = False
-dDown = False
+# Constants
+WHITE = pygame.Color(255, 255, 255)
+FPS = 30
 
 # Pygame startup MUST HAPPEN FIRST
+print "Loading Pygame: ",
+start = time()
 pygame.init()
-Planet.load()
-Ship.load()
+print '%.4fs' % (time() - start)
+
+for msg in Planet.load():
+    print msg
+for msg in Ship.load():
+    print msg
+
 
 clock = pygame.time.Clock()
 
@@ -28,10 +35,6 @@ pygame.display.set_caption('Space Battle')
 
 bg = background.load(options=background.STRETCH, resolution=resolution)
 
-count = 0
-
-WHITE = pygame.Color(255, 255, 255)
-FPS = 30
 
 sprites = pygame.sprite.Group()
 celestials = set()
