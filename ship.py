@@ -18,7 +18,7 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
 
         Ship.SCALED_IMAGES = {}
         for key, value in Ship.IMAGES.iteritems():
-            rect = Ship.IMAGES.get('ship1 - off').get_rect()
+            rect = value.get_rect()
 
             width = rect.width / 4
             height = rect.height / 4
@@ -31,7 +31,7 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
     def __init__(self):
         super(Ship, self).__init__()
 
-        self.image = Ship.SCALED_IMAGES.get('ship1 - off')
+        self.image = Ship.SCALED_IMAGES.get('ship1')
 
         self.rect = self.image.get_rect()
         self.rect.centerx = 50
@@ -80,20 +80,24 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             self._counter = time
 
             # Base image right now
-            base_image = Ship.SCALED_IMAGES.get('ship1 - off')
+            base_image = Ship.SCALED_IMAGES.get('ship1')
+
+            # Add the current engine level
+            engine_image = Ship.SCALED_IMAGES.get('ship1 - off').copy()
+            engine_image.blit(base_image, base_image.get_rect())
+            output_image = engine_image
 
             # Updates side-burn
             if self._rotate_direction != Ship.ROT_STOP:
                 burn_image = 'ship1 - left' if self._rotate_direction == Ship.ROT_LEFT else 'ship1 - right'
                 burn_image = Ship.SCALED_IMAGES.get(burn_image).copy()
 
-                burn_image.blit(base_image, base_image.get_rect())
-            else:
-                burn_image = base_image
+                burn_image.blit(output_image, output_image.get_rect())
+                output_image = burn_image
 
             # Ship Rotation
             self._direction = self._direction + (self._rotate_direction * 180 / Ship.FPS)
-            self.image = pygame.transform.rotate(burn_image, self._direction)
+            self.image = pygame.transform.rotate(output_image, self._direction)
             self.rect = self.image.get_rect(center = self.rect.center)
 
 
