@@ -6,7 +6,9 @@ from celestials import Sun, Planet
 from event_handler import Context
 from ship import Ship
 
+import background
 import events
+
 
 
 # KeyDown Booleans
@@ -23,7 +25,7 @@ resolution = (640, 480)
 window = pygame.display.set_mode(resolution)
 pygame.display.set_caption('Space Battle')
 
-background = pygame.image.load(os.path.join('Resources', 'stars.jpg'))
+bg = background.load(options=background.STRETCH, resolution=resolution)
 
 count = 0
 
@@ -70,7 +72,7 @@ events.handler.context = Context({
 while True:
     window.fill(WHITE)
 
-    window.blit(background, background.get_rect())
+    window.blit(bg, bg.get_rect())
     sprites.draw(window)
 
     # Events!
