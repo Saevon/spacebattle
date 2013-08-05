@@ -4,6 +4,7 @@ import sys
 import os.path
 
 from celestials import Sun, Planet
+from ship import Ship
 
 
 # Missing Mouse button constants
@@ -34,6 +35,7 @@ FPS = 30
 sprites = pygame.sprite.Group()
 
 
+# Create Sun
 Sun.set_fps(FPS)
 sun = Sun(resolution[0] / 2, resolution[1] / 2, 50)
 sprites.add(sun)
@@ -50,6 +52,9 @@ planet = Planet(0, 0, 30)
 planet.orbit(sun, 200)
 sprites.add(planet)
 
+# Create Ship
+ship = Ship()
+sprites.add(ship)
 
 running = True
 while running:
@@ -71,7 +76,7 @@ while running:
             event.button == MOUSEKEY_RIGHT
 
         elif event.type == const.KEYDOWN:
-            if event.key == const.K_q and event.mod & const.KMOD_META:
+            if event.key == const.K_q and ((event.mod & const.KMOD_META) or (event.mod & const.KMOD_ALT)):
                 pygame.quit()
                 sys.exit()
 
