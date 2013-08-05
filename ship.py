@@ -12,16 +12,26 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
     ROT_LEFT = 1
     ROT_STOP = 0
 
+    @classmethod
+    def load(cls):
+        super(Ship, cls).load()
+
+        Ship.SCALED_IMAGES = {}
+        for key, value in Ship.IMAGES.iteritems():
+            rect = Ship.IMAGES.get('ship1 - off').get_rect()
+
+            width = rect.width / 4
+            height = rect.height / 4
+
+            Ship.SCALED_IMAGES[key] = pygame.transform.smoothscale(
+                value,
+                (width, height)
+            )
+
     def __init__(self):
         super(Ship, self).__init__()
 
-        self.rect = Ship.IMAGES.get('ship1 - off').get_rect()
-
-        self.width = self.rect.width / 4
-        self.height = self.rect.height / 4
-
-        self.image_original = pygame.transform.smoothscale(Ship.IMAGES.get('ship1 - off'), (self.width, self.height))
-        self.image = self.image_original
+        self.image = Ship.SCALED_IMAGES.get('ship1 - off')
 
         self.rect = self.image.get_rect()
         self.rect.centerx = 50
@@ -69,7 +79,23 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
         if time > self._counter + self._delay:
             self._counter = time
 
+            # Base image right now
+            base_image = Ship.SCALED_IMAGES.get('ship1 - off')
+
+            # Updates side-burn
+            if self._rotate_direction != Ship.ROT_STOP:
+                burn_image = 'ship1 - left' if self._rotate_direction == Ship.ROT_LEFT else 'ship1 - right'
+                burn_image = Ship.SCALED_IMAGES.get(burn_image).copy()
+
+                burn_image.blit(base_image, base_image.get_rect())
+            else:
+                burn_image = base_image
+
             # Ship Rotation
             self._direction = self._direction + (self._rotate_direction * 180 / Ship.FPS)
-            self.image = pygame.transform.rotate(self.image_original, self._direction)
+            self.image = pygame.transform.rotate(burn_image, self._direction)
             self.rect = self.image.get_rect(center = self.rect.center)
+
+
+
+
