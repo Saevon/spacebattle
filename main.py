@@ -3,7 +3,7 @@ import pygame
 import sys
 import os.path
 
-from celestials import Sun
+from celestials import Sun, Planet
 
 
 # Missing Mouse button constants
@@ -31,11 +31,24 @@ count = 0
 WHITE = pygame.Color(255, 255, 255)
 FPS = 30
 
+sprites = pygame.sprite.Group()
+
 
 Sun.set_fps(FPS)
 sun = Sun(resolution[0] / 2, resolution[1] / 2, 50)
-pullable = []
-sun.set_pullable(pullable)
+sprites.add(sun)
+
+planet = Planet(0, 0, 8)
+planet.orbit(sun, 140)
+sprites.add(planet)
+
+planet = Planet(0, 0, 10)
+planet.orbit(sun, 60)
+sprites.add(planet)
+
+planet = Planet(0, 0, 30)
+planet.orbit(sun, 200)
+sprites.add(planet)
 
 
 running = True
@@ -43,7 +56,7 @@ while running:
     window.fill(WHITE)
 
     window.blit(background, background.get_rect())
-    window.blit(sun.image, sun.rect)
+    sprites.draw(window)
 
     # Event handling
     for event in pygame.event.get():
@@ -66,13 +79,7 @@ while running:
                 print '!!'
 
 
-    # Apply the gravity well effects
-    for obj in pullable:
-        sun.pull_obj(obj)
-
-
-
-
+    sprites.update(pygame.time.get_ticks())
 
     # Draw the screen ever FPS frames
     pygame.display.update()
