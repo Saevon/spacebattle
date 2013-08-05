@@ -22,6 +22,8 @@ class Ship(pygame.sprite.Sprite):
 
         self._direction = 0
         self._delay = 1000 / Ship.FPS
+        self._counter = pygame.time.get_ticks()
+        self._rotate_direction = 0
 
     @staticmethod
     def set_fps(fps):
@@ -37,23 +39,19 @@ class Ship(pygame.sprite.Sprite):
         
         '''
         if d == Ship.ROT_RIGHT:
-            self.rotate = -1
+            self._rotate_direction = -1
         elif d == Ship.ROT_LEFT:
-            self.rotate = 1
+            self._rotate_direction = 1
         else:
-            self.rotate = 0
-
-   #     self._direction += angle
-   #     self.image = pygame.transform.smoothscale(Ship.IMAGE, (self.width, self.height))
-   #     self.image = pygame.transform.rotate(self.image, self._direction)
-   #     self.rect = self.image.get_rect(center = self.rect.center)
+            self._rotate_direction = 0
 
     def update(self, time):
         if time > self._counter + self._delay:
             self._counter = time
 
-            self.rotate_speed = self.rotate * 90 / Ship.FPS
-            self.image = pygame.transform.rotate(self.image, self.rotate_speed)
+            self.image = pygame.transform.smoothscale(Ship.IMAGE, (self.width, self.height))
+            self._direction += self._rotate_direction * 90 / Ship.FPS
+            self.image = pygame.transform.rotate(self.image, self._direction)
             self.rect = self.image.get_rect(center = self.rect.center)
             
     def accelerate(self, rads, speed):
