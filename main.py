@@ -4,6 +4,7 @@ import sys
 import os.path
 
 from celestials import Sun
+from ship import Ship
 
 
 # Missing Mouse button constants
@@ -31,12 +32,14 @@ count = 0
 WHITE = pygame.Color(255, 255, 255)
 FPS = 30
 
-
+# Create Sun
 Sun.set_fps(FPS)
 sun = Sun(resolution[0] / 2, resolution[1] / 2, 50)
 pullable = []
 sun.set_pullable(pullable)
 
+# Create Ship
+ship = Ship()
 
 running = True
 while running:
@@ -44,6 +47,7 @@ while running:
 
     window.blit(background, background.get_rect())
     window.blit(sun.image, sun.rect)
+    window.blit(ship.image, ship.rect)
 
     # Event handling
     for event in pygame.event.get():
