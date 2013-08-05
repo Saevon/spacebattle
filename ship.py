@@ -1,9 +1,11 @@
 import pygame
 import os.path
+from mixins import ImageBatch
 
-class Ship(pygame.sprite.Sprite):
+
+class Ship(pygame.sprite.Sprite, ImageBatch):
     # Original Image
-    IMAGE = pygame.image.load(os.path.join('Resources', 'sprites', 'ship', 'Ship - off.png'))
+    IMAGE_PATH = os.path.join('Resources', 'sprites', 'ship')
 
     # Rotation Direction Constants
     ROT_RIGHT = -1
@@ -13,12 +15,12 @@ class Ship(pygame.sprite.Sprite):
     def __init__(self):
         super(Ship, self).__init__()
 
-        self.rect = Ship.IMAGE.get_rect()
+        self.rect = Ship.IMAGES.get('ship1 - off').get_rect()
 
         self.width = self.rect.width / 4
         self.height = self.rect.height / 4
 
-        self.image_original = pygame.transform.smoothscale(Ship.IMAGE, (self.width, self.height))
+        self.image_original = pygame.transform.smoothscale(Ship.IMAGES.get('ship1 - off'), (self.width, self.height))
         self.image = self.image_original
 
         self.rect = self.image.get_rect()

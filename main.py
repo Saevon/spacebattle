@@ -18,6 +18,7 @@ dDown = False
 # Pygame startup MUST HAPPEN FIRST
 pygame.init()
 Planet.load()
+Ship.load()
 
 clock = pygame.time.Clock()
 

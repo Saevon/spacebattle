@@ -4,6 +4,7 @@ import pygame
 import os
 
 from math import cos, sin, atan2, degrees, pi, sqrt
+from mixins import ImageBatch
 from random import randrange
 from random import choice as randchoice
 import well
@@ -100,24 +101,11 @@ class Sun(Celestial):
         super(Sun, self).__init__(x, y)
 
 
-class Planet(Celestial):
+class Planet(Celestial, ImageBatch):
     IMAGE_PATH = os.path.join('Resources', 'sprites', 'planets')
 
     PLANET_MASS_CONST = 1 * 10 ** 27
     MASS_RANGE = (1, 16)
-
-    @staticmethod
-    def load():
-        Planet.IMAGES = {}
-
-        for key in os.listdir(Planet.IMAGE_PATH):
-            # ignore hidden files
-            if key.startswith('.'):
-                continue
-
-            Planet.IMAGES[os.path.splitext(key)[0]] = pygame.image.load(
-                os.path.join(Planet.IMAGE_PATH, key)
-            )
 
     def __init__(self, x, y, radius=None, mass=None, image=None):
         if radius is None:
