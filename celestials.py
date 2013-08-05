@@ -121,7 +121,7 @@ class Planet(Celestial):
         super(Planet, self).__init__(x, y)
 
     def _update(self):
-        self.rads += pi / 2 ** 12
+        self.rads += pi / 2 ** self.speed
         self.rads %= 2 * pi
 
         self.x = self.orbit.x + self.distance * cos(self.rads)
@@ -132,8 +132,14 @@ class Planet(Celestial):
 
 
     def orbit(self, obj, distance):
+        '''
+        TODO: use GravityWell.satellite() to figure out the minimal speed needed
+        TODO: elliptical orbits?
+        '''
         self.orbit = obj
         self.distance = distance
+
+        self.speed = randrange(10, 15)
 
 #     def orbit(self, obj, distance):
 #         obj.pull_on(self)
