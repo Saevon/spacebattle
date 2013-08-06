@@ -1,6 +1,7 @@
 import pygame
 import os.path
 from mixins import ImageBatch
+from math import cos, sin, pi
 
 
 class Ship(pygame.sprite.Sprite, ImageBatch):
@@ -11,6 +12,10 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
     ROT_RIGHT = -1
     ROT_LEFT = 1
     ROT_STOP = 0
+
+    MOV_FORWARDS = 1
+    MOV_BACKWARDS = -1
+    MOV_STOP = 0
 
     @classmethod
     def load(cls):
@@ -46,17 +51,30 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
         self._delay = 1000 / Ship.FPS
         self._counter = pygame.time.get_ticks()
         self._rotate_direction = 0
-        self._speed = 10
+        self._move_direction = 0
+        
+        self._speedX = 0.0
+        self._speedY = 0.0
 
     @staticmethod
     def set_fps(fps):
         Ship.FPS = fps
 
-    def move():
+    def move(self, dir, stop=False):
         '''
         Calls accelerate at direction and ships speed.
+        Takes arguement:
+            Ship.MOV_FORWARDS = accelerate in the current facing direction.
+            Ship.MOV_BACKWARDS = accelerate opposite of the current facing direction.
+            Ship.MOV_STOP = stop accelerating.
         '''
-        self.accelerate(self._direction, self._speed)
+        if stop:
+            if dir == self._move_direction:
+                self._move_direction = Ship.ROT_STOP
+        elif dir in (Ship.MOV_FORWARDS, Ship.MOV_BACKWARDS, Ship.MOV_STOP):
+            self._move_direction = dir
+        else:
+            raise Exception('Invalid movement direction')
 
     def rotate(self, dir, stop=False):
         '''
@@ -75,10 +93,19 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             raise Exception('Invalid rotation direction')
 
 
-    def accelerate(self, rads, speed):
+    def accelerate(self, rads, speed, use_degrees=False):
         '''
+        
+        '''
+        if speed == 0:
+            return
 
-        '''
+        if use_degrees:
+            rads = rads * pi / 180
+
+        rads -= pi / 2
+        self._speedX += cos(rads) * speed
+        self._speedY += sin(rads) * speed
 
     def update(self, time):
         if time > self._counter + self._delay:
@@ -104,7 +131,13 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             self._direction = self._direction + (self._rotate_direction * 180 / Ship.FPS)
             self.image = pygame.transform.rotate(output_image, self._direction)
             self.rect = self.image.get_rect(center = self.rect.center)
+            
+            # Ship Accelerate From Engine
+            self.accelerate(self._direction, self._move_direction * 30 / Ship.FPS, True)
 
-
+            # Ship Move
+            # TODO: Make it not run off screen?
+            self.rect.centerx += self._speedX
+            self.rect.centery -= self._speedY
 
 

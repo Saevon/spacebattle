@@ -24,7 +24,7 @@ def quit(context):
     sys.exit()
 
 @handler.keydown(const.K_d)
-def rotate_left(context):
+def rotate_right(context):
     context.ship.rotate(Ship.ROT_RIGHT)
 
 @handler.keyup(const.K_d)
@@ -38,6 +38,22 @@ def rotate_left(context):
 @handler.keyup(const.K_a)
 def rotate_left_stop(context):
     context.ship.rotate(Ship.ROT_LEFT, stop=True)
+
+@handler.keydown(const.K_w)
+def move_up(context):
+    context.ship.move(Ship.MOV_FORWARDS)
+
+@handler.keyup(const.K_w)
+def move_up_stop(context):
+    context.ship.move(Ship.MOV_FORWARDS, stop=True)
+
+@handler.keydown(const.K_s)
+def move_up(context):
+    context.ship.move(Ship.MOV_BACKWARDS)
+
+@handler.keyup(const.K_s)
+def move_up_stop(context):
+    context.ship.move(Ship.MOV_BACKWARDS, stop=True)
 
 DEBUG = False
 if DEBUG:
