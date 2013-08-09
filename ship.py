@@ -57,6 +57,7 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
 
         self._speedX = 0.0
         self._speedY = 0.0
+        self._speed = 0.0
 
     def set_direction(self, dir):
         self._direction = dir
@@ -72,6 +73,9 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
     @staticmethod
     def set_fps(fps):
         Ship.FPS = fps
+
+    def set_Speed(self, shipSpeed):
+        self._speed = shipSpeed
 
     def move(self, dir, stop=False):
         '''
@@ -141,12 +145,12 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
                 output_image = burn_image
 
             # Ship Rotation
-            self._direction = self._direction + (self._rotate_direction * 180 / Ship.FPS)
-            self.image = pygame.transform.rotate(output_image, self._direction)
+            self._direction = self._direction + (self._rotate_direction * pi / Ship.FPS)
+            self.image = pygame.transform.rotate(output_image, self._direction * 180 / pi)
             self.rect = self.image.get_rect(center = self.rect.center)
 
             # Ship Accelerate From Engine
-            self.accelerate(self._direction, self._move_direction * 30 / Ship.FPS, True)
+            self.accelerate(self._direction, self._move_direction * self._speed / Ship.FPS)
 
             # Ship Move
             # TODO: Make it not run off screen?
