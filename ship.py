@@ -58,9 +58,13 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
         
         self._speedX = 0.0
         self._speedY = 0.0
-        self._speed = 0.0
 
-    def set_direction(self, dir):
+        self._movespeed = 0.0
+        self._turnspeed = 0.0
+
+    def set_direction(self, dir, use_degrees=False):
+        if use_degrees:
+            dir = dir * pi / 180
         self._direction = dir
 
     @property
@@ -75,8 +79,11 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
     def set_fps(fps):
         Ship.FPS = fps
 
-    def set_Speed(self, shipSpeed):
-        self._speed = shipSpeed
+    def set_MoveSpeed(self, speed):
+        self._movespeed = speed
+
+    def set_TurnSpeed(self, speed):
+        self._turnspeed = speed
 
     def move(self, dir, stop=False):
         '''
@@ -126,11 +133,14 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
         self._speedY += sin(rads) * speed
 
     def engine_on_image(self, counter):
+        '''
+
+        '''
         return {
-            0: 'ship1 - on - start',
-            1: 'ship1 - on - 1',
-            2: 'ship1 - on - 2',
-            3: 'ship1 - on - 3'
+            0: 'on - start',
+            1: 'on - 1',
+            2: 'on - 2',
+            3: 'on - 3'
         }[counter]
 
     def update(self, time):
@@ -147,7 +157,7 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
 
             # Updates side-burn
             if self._rotate_direction != Ship.ROT_STOP:
-                burn_image = 'ship1 - left' if self._rotate_direction == Ship.ROT_LEFT else 'ship1 - right'
+                burn_image = ('%s - left' % (self.model)) if self._rotate_direction == Ship.ROT_LEFT else ('%s - right' % (self.model))
                 burn_image = Ship.SCALED_IMAGES.get(burn_image).copy()
 
                 burn_image.blit(output_image, output_image.get_rect())
@@ -156,14 +166,14 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             # Updates engine
             if self._move_direction != Ship.MOV_STOP:
                 if self._move_direction == Ship.MOV_FORWARDS:
-                    engine_image = self.engine_on_image(self._animation_counter)
+                    engine_image = ('%s - %s' % (self.model, self.engine_on_image(self._animation_counter)))
                     if self._animation_counter < 3:
                         self._animation_counter += 1
                     else:
                         self._animation_counter = 1
                 elif self._move_direction == Ship.MOV_BACKWARDS:
                     self._animation_counter = 0
-                    engine_image = 'ship1 - off'
+                    engine_image = ('%s - off' % (self.model))
 
                 engine_image = Ship.SCALED_IMAGES.get(engine_image).copy()
                 engine_image.blit(output_image, output_image.get_rect())
@@ -173,12 +183,12 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
                 
 
             # Ship Rotation
-            self._direction = self._direction + (self._rotate_direction * pi / Ship.FPS)
+            self._direction = self._direction + (self._rotate_direction * self._turnspeed / Ship.FPS)
             self.image = pygame.transform.rotate(output_image, self._direction * 180 / pi)
             self.rect = self.image.get_rect(center = self.rect.center)
 
             # Ship Accelerate From Engine
-            self.accelerate(self._direction, self._move_direction * self._speed / Ship.FPS)
+            self.accelerate(self._direction, self._move_direction * self._movespeed / Ship.FPS)
 
             # Ship Move
             # TODO: Make it not run off screen?
