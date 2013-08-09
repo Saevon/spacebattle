@@ -40,6 +40,9 @@ class EventHandler(object):
 
         self.context = context
 
+    #######################################################
+    # EVENT REGISTRATIONS
+    #######################################################
     @staticmethod
     def _append_wrapper_with_const(loc, key, const=None):
         '''
@@ -68,6 +71,7 @@ class EventHandler(object):
             # That lets us chain different events with differing constants in one line
             return func
         return wrapper
+
 
     def quit(self, handler):
         '''
@@ -137,8 +141,11 @@ class EventHandler(object):
 
 
 
-    def __call__(self, events):
-        self.handle(events)
+
+
+    #######################################################
+    # Main Functions
+    #######################################################
 
     def _get_modifiers(self, flag):
         '''
@@ -161,6 +168,9 @@ class EventHandler(object):
 
         for handler in handlers:
             handler(self.context)
+
+    def __call__(self, events):
+        self.handle(events)
 
     def handle(self, events):
         '''
