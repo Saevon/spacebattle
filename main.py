@@ -75,11 +75,11 @@ player2.set_direction(-45)
 
 player3 = Ship(50, 400, base='green')
 sprites.add(player3)
-player3.set_direction(135)
+player3.set_direction(90)
 
 player4 = Ship(600, 400, base='blue')
 sprites.add(player4)
-player4.set_direction(-135)
+player4.set_direction(-90)
 
 # for celestial in celestials:
 #     celestial.pull_on(ship)
