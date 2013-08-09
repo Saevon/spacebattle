@@ -170,9 +170,12 @@ class EventHandler(object):
             handler(self.context)
 
     def __call__(self, events):
-        self.handle(events)
+        '''
+        Handles the given events
+        '''
+        self._handle(events)
 
-    def handle(self, events):
+    def _handle(self, events):
         '''
         Handles each of the given events
         '''
@@ -203,3 +206,5 @@ class EventHandler(object):
             # generic events
             handlers = self.on_generic.get(event.type, False)
             self._call_handlers(handlers)
+
+
