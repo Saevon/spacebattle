@@ -89,8 +89,11 @@ player4.set_TurnSpeed(pi)
 sprites.add(player4)
 player4.set_direction(-90, True)
 
-# for celestial in celestials:
-#     celestial.pull_on(ship)
+for celestial in celestials:
+    celestial.pull_on(player1)
+    celestial.pull_on(player2)
+    celestial.pull_on(player3)
+    celestial.pull_on(player4)
 
 # Global object that an event can manipulate
 events.handler.context = Context({

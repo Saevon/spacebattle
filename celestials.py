@@ -34,9 +34,6 @@ class Celestial(Sprite, well.GravityWell):
         Celestial.FPS = fps
 
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
         super(Celestial, self).__init__()
 
         self.rect = self.image.get_rect()
@@ -47,6 +44,14 @@ class Celestial(Sprite, well.GravityWell):
         self._delay = 1000 / Celestial.FPS
 
         self._pullable = set()
+
+    @property
+    def x(self):
+        return self.rect.centerx
+
+    @property
+    def y(self):
+        return self.rect.centery
 
     def update(self, time):
         if time > self._counter + self._delay:
@@ -62,15 +67,16 @@ class Celestial(Sprite, well.GravityWell):
 
 
     def _pull_obj(self, obj):
-        distance = ((self.x - obj.x) ** 2 + (self.y - obj.y) ** 2) ** (1.0 / 2.0)
-
         dx = obj.x - self.x
         dy = obj.y - self.y
+
+        distance = (dx ** 2 + dy ** 2) ** (1.0 / 2.0)
+
         rads = atan2(-dy, dx)
 
         speed = self.pull(distance) / Celestial.FPS
 
-        obj.accelerate(rads, speed)
+        obj.accelerate(-1 * rads, -1 * speed / Celestial.MOVEMENT_CONST)
 
     def pull_on(self, obj):
         self._pullable.add(obj)
@@ -129,11 +135,8 @@ class Planet(Celestial, ImageBatch):
         self.rads += pi / 2 ** self.speed
         self.rads %= 2 * pi
 
-        self.x = self.orbit.x + self.distance * cos(self.rads)
-        self.y = self.orbit.y + self.distance * sin(self.rads)
-
-        self.rect.centerx = self.x
-        self.rect.centery = self.y
+        self.rect.centerx = self.orbit.x + self.distance * cos(self.rads)
+        self.centery = self.orbit.y + self.distance * sin(self.rads)
 
 
     def orbit(self, obj, distance, speed=None):
