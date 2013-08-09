@@ -54,7 +54,8 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
         self._counter = pygame.time.get_ticks()
         self._rotate_direction = 0
         self._move_direction = 0
-
+        self._animation_counter = 0
+        
         self._speedX = 0.0
         self._speedY = 0.0
         self._speed = 0.0
@@ -124,6 +125,14 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
         self._speedX += cos(rads) * speed
         self._speedY += sin(rads) * speed
 
+    def engine_on_image(self, counter):
+        return {
+            0: 'ship1 - on - start',
+            1: 'ship1 - on - 1',
+            2: 'ship1 - on - 2',
+            3: 'ship1 - on - 3'
+        }[counter]
+
     def update(self, time):
         if time > self._counter + self._delay:
             self._counter = time
@@ -143,6 +152,25 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
 
                 burn_image.blit(output_image, output_image.get_rect())
                 output_image = burn_image
+
+            # Updates engine
+            if self._move_direction != Ship.MOV_STOP:
+                if self._move_direction == Ship.MOV_FORWARDS:
+                    engine_image = self.engine_on_image(self._animation_counter)
+                    if self._animation_counter < 3:
+                        self._animation_counter += 1
+                    else:
+                        self._animation_counter = 1
+                elif self._move_direction == Ship.MOV_BACKWARDS:
+                    self._animation_counter = 0
+                    engine_image = 'ship1 - off'
+
+                engine_image = Ship.SCALED_IMAGES.get(engine_image).copy()
+                engine_image.blit(output_image, output_image.get_rect())
+                output_image = engine_image
+            else:
+                self._animation_counter = 0
+                
 
             # Ship Rotation
             self._direction = self._direction + (self._rotate_direction * pi / Ship.FPS)
