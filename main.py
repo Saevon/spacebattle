@@ -63,7 +63,7 @@ celestials.add(planet)
 # Create Ship
 Ship.set_fps(FPS)
 ship = Ship()
-ship.set_Speed(29)
+ship.set_Speed(30)
 sprites.add(ship)
 # for celestial in celestials:
 #     celestial.pull_on(ship)
