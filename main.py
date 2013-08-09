@@ -7,6 +7,8 @@ from event_handler import Context
 from ship import Ship
 from time import time
 
+from math import pi
+
 import background
 import events
 
@@ -62,14 +64,34 @@ celestials.add(planet)
 
 # Create Ship
 Ship.set_fps(FPS)
-ship = Ship()
-sprites.add(ship)
+
+player1 = Ship(50, 50, base='purple')
+sprites.add(player1)
+player1.set_direction(45)
+
+player2 = Ship(600, 50, base='red')
+sprites.add(player2)
+player2.set_direction(-45)
+
+player3 = Ship(50, 400, base='green')
+sprites.add(player3)
+player3.set_direction(135)
+
+player4 = Ship(600, 400, base='blue')
+sprites.add(player4)
+player4.set_direction(-135)
+
 # for celestial in celestials:
 #     celestial.pull_on(ship)
 
 # Global object that an event can manipulate
 events.handler.context = Context({
-    'ship': ship,
+    'players': {
+        1: player1,
+        2: player2,
+        3: player3,
+        4: player4,
+    },
 })
 
 
