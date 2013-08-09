@@ -38,14 +38,16 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
                 (width, height)
             )
 
-    def __init__(self):
+    def __init__(self, x, y, model='ship1', base='purple'):
         super(Ship, self).__init__()
 
-        self.image = Ship.SCALED_IMAGES.get('ship1')
+        self.model = model
+        self.base = base
+        self.image = Ship.SCALED_IMAGES.get(self.model)
 
         self.rect = self.image.get_rect()
-        self.rect.centerx = 50
-        self.rect.centery = 50
+        self.rect.centerx = x
+        self.rect.centery = y
 
         self._direction = 0
         self._delay = 1000 / Ship.FPS
@@ -57,6 +59,17 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
         self._speedX = 0.0
         self._speedY = 0.0
         self._speed = 0.0
+
+    def set_direction(self, dir):
+        self._direction = dir
+
+    @property
+    def x(self):
+        return self.rect.centerx
+
+    @property
+    def y(self):
+        return self.rect.centery
 
     @staticmethod
     def set_fps(fps):
@@ -100,7 +113,7 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
 
     def accelerate(self, rads, speed, use_degrees=False):
         '''
-        
+
         '''
         if speed == 0:
             return
@@ -125,10 +138,10 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             self._counter = time
 
             # Base image right now
-            base_image = Ship.SCALED_IMAGES.get('ship1')
+            base_image = Ship.SCALED_IMAGES.get('%s - %s' % (self.model, self.base))
 
             # Add the current engine level
-            engine_image = Ship.SCALED_IMAGES.get('ship1 - off').copy()
+            engine_image = Ship.SCALED_IMAGES.get('%s - off' % self.model).copy()
             engine_image.blit(base_image, base_image.get_rect())
             output_image = engine_image
 
@@ -163,7 +176,7 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             self._direction = self._direction + (self._rotate_direction * pi / Ship.FPS)
             self.image = pygame.transform.rotate(output_image, self._direction * 180 / pi)
             self.rect = self.image.get_rect(center = self.rect.center)
-            
+
             # Ship Accelerate From Engine
             self.accelerate(self._direction, self._move_direction * self._speed / Ship.FPS)
 

@@ -1,4 +1,5 @@
 from pygame import locals as const
+from functools import wraps
 
 
 class Context(dict):
@@ -32,11 +33,41 @@ class EventHandler(object):
         self.on_shortcut = {}
         self.on_keydown = {}
         self.on_keyup = {}
+        self.on_mouseclick = {}
 
         if context is None:
             context = Context()
 
         self.context = context
+
+    @staticmethod
+    def _append_wrapper_with_const(loc, key, const=None):
+        '''
+        HELPER: returns a wrapper that will append a func to the given loc
+            with the given key. Also adds an extra const wrapper if that is provided
+        '''
+        def wrapper(func):
+            # If we have constants, we call the function with a closure
+            if const is not None:
+                @wraps(func)
+                def closure(*args, **kwargs):
+                    # we use the const values first, but they get overwritten by keyword args
+                    input_kwargs = dict(**const)
+                    input_kwargs.update(**kwargs)
+
+                    return func(*args, **input_kwargs)
+
+                handler = closure
+            else:
+                handler = func
+
+            # Add it to the callbacks
+            loc[key].append(handler)
+
+            # Always return the original
+            # That lets us chain different events with differing constants in one line
+            return func
+        return wrapper
 
     def quit(self, handler):
         '''
@@ -45,7 +76,7 @@ class EventHandler(object):
         self.on_quit.append(handler)
         return handler
 
-    def shortcut(self, modifiers, key):
+    def shortcut(self, modifiers, key, const=None):
         '''
         Adds a handler for a shortcut (a key combination)
         '''
@@ -60,12 +91,10 @@ class EventHandler(object):
         if not handlers:
             self.on_shortcut[modifiers][key] = []
 
-        def wrapper(handler):
-            self.on_shortcut[modifiers][key].append(handler)
-            return handler
-        return wrapper
+        loc = self.on_shortcut[modifiers]
+        return EventHandler._append_wrapper_with_const(loc, key, const)
 
-    def keyup(self, key):
+    def keyup(self, key, const=None):
         '''
         Adds a handler for the keyup event
         '''
@@ -73,12 +102,10 @@ class EventHandler(object):
         if not handlers:
             self.on_keyup[key] = []
 
-        def wrapper(handler):
-            self.on_keyup[key].append(handler)
-            return handler
-        return wrapper
+        loc = self.on_keyup
+        return EventHandler._append_wrapper_with_const(loc, key, const)
 
-    def keydown(self, key):
+    def keydown(self, key, const=None):
         '''
         Adds a handler for the keydown event
         '''
@@ -86,30 +113,36 @@ class EventHandler(object):
         if not handlers:
             self.on_keydown[key] = []
 
-        def wrapper(handler):
-            self.on_keydown[key].append(handler)
-            return handler
-        return wrapper
+        loc = self.on_keydown
+        return EventHandler._append_wrapper_with_const(loc, key, const)
 
-    def event(self, event):
-        '''
-        Adds a handler for any other event, its type is given by event
-        '''
-        handlers = self.on_generic.get(event, False)
+    def mouseclick(self, key, const=None):
+        handlers = self.on_mouseclick.get(key, False)
         if not handlers:
-            self.on_generic[event] = []
+            self.on_mouseclick[key] = []
 
-        def wrapper(handler):
-            self.on_generic[event].append(handler)
-            return handler
-        return wrapper
+        loc = self.on_mouseclick
+        return EventHandler._append_wrapper_with_const(loc, key, const)
+
+    def event(self, key, const=None):
+        '''
+        Adds a handler for any other event, its type is given by key
+        '''
+        handlers = self.on_generic.get(key, False)
+        if not handlers:
+            self.on_generic[key] = []
+
+        loc = self.on_generic
+        return EventHandler._append_wrapper_with_const(loc, key, const)
+
+
 
     def __call__(self, events):
-        self.handle(events, self.context)
+        self.handle(events)
 
     def _get_modifiers(self, flag):
         '''
-        Transforms the pygame modifiers into EventHandler modifiers
+        HELPER: Transforms the pygame modifiers into EventHandler modifiers
         '''
         modifiers = 0
 
@@ -119,34 +152,44 @@ class EventHandler(object):
 
         return modifiers
 
-    def handle(self, events, context):
+    def _call_handlers(self, handlers):
         '''
-        Handles each of the given events with the given context
+        HELPER: calls a list of handlers
         '''
-        context.handler = self
+        if not handlers:
+            return
+
+        for handler in handlers:
+            handler(self.context)
+
+    def handle(self, events):
+        '''
+        Handles each of the given events
+        '''
+        self.context.handler = self
+        context = self.context
 
         for event in events:
             context.event = event
 
             if event.type == const.QUIT:
-                map(lambda handler: handler(event), self.on_quit)
+                self._call_handlers(self.on_quit)
             elif event.type == const.KEYDOWN:
                 mod = self._get_modifiers(event.mod)
                 handlers = self.on_shortcut.get(mod, False)
                 if handlers:
                     handlers = handlers.get(event.key, False)
-                    if handlers:
-                        map(lambda handler: handler(context), handlers)
+                    self._call_handlers(handlers)
 
                 handlers = self.on_keydown.get(event.key, False)
-                if handlers:
-                    map(lambda handler: handler(context), handlers)
+                self._call_handlers(handlers)
             elif event.type == const.KEYUP:
                 handlers = self.on_keyup.get(event.key, False)
-                if handlers:
-                    map(lambda handler: handler(context), handlers)
+                self._call_handlers(handlers)
+            elif event.type == const.MOUSEBUTTONDOWN:
+                handlers = self.on_mouseclick.get(event.button, False)
+                self._call_handlers(handlers)
 
             # generic events
             handlers = self.on_generic.get(event.type, False)
-            if handlers:
-                map(lambda handler: handler(context), handlers)
+            self._call_handlers(handlers)

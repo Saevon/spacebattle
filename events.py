@@ -23,37 +23,71 @@ def quit(context):
     pygame.quit()
     sys.exit()
 
-@handler.keydown(const.K_d)
-def rotate_right(context):
-    context.ship.rotate(Ship.ROT_RIGHT)
 
-@handler.keyup(const.K_d)
-def rotate_right_stop(context):
-    context.ship.rotate(Ship.ROT_RIGHT, stop=True)
+#################################################
+# Ship Controls
 
-@handler.keydown(const.K_a)
-def rotate_left(context):
-    context.ship.rotate(Ship.ROT_LEFT)
+# Player 1
+@handler.keydown(const.K_d, const={'player': 1})
+@handler.keydown(const.K_l, const={'player': 2})
+@handler.keydown(const.K_RIGHT, const={'player': 3})
+@handler.keydown(const.K_h, const={'player': 4})
+def rotate_right(context, player):
+    context['players'][player].rotate(Ship.ROT_RIGHT)
 
-@handler.keyup(const.K_a)
-def rotate_left_stop(context):
-    context.ship.rotate(Ship.ROT_LEFT, stop=True)
+@handler.keyup(const.K_d, const={'player': 1})
+@handler.keyup(const.K_l, const={'player': 2})
+@handler.keyup(const.K_RIGHT, const={'player': 3})
+@handler.keyup(const.K_h, const={'player': 4})
+def rotate_right_stop(context, player):
+    context['players'][player].rotate(Ship.ROT_RIGHT, stop=True)
 
-@handler.keydown(const.K_w)
-def move_up(context):
-    context.ship.move(Ship.MOV_FORWARDS)
+@handler.keydown(const.K_a, const={'player': 1})
+@handler.keydown(const.K_j, const={'player': 2})
+@handler.keydown(const.K_LEFT, const={'player': 3})
+@handler.keydown(const.K_f, const={'player': 4})
+def rotate_left(context, player):
+    context['players'][player].rotate(Ship.ROT_LEFT)
 
-@handler.keyup(const.K_w)
-def move_up_stop(context):
-    context.ship.move(Ship.MOV_FORWARDS, stop=True)
+@handler.keyup(const.K_a, const={'player': 1})
+@handler.keyup(const.K_j, const={'player': 2})
+@handler.keyup(const.K_LEFT, const={'player': 3})
+@handler.keyup(const.K_f, const={'player': 4})
+def rotate_left_stop(context, player):
+    context['players'][player].rotate(Ship.ROT_LEFT, stop=True)
 
-@handler.keydown(const.K_s)
-def move_up(context):
-    context.ship.move(Ship.MOV_BACKWARDS)
+@handler.keydown(const.K_w, const={'player': 1})
+@handler.keydown(const.K_i, const={'player': 2})
+@handler.keydown(const.K_UP, const={'player': 3})
+@handler.keydown(const.K_t, const={'player': 4})
+def move_up(context, player):
+    context['players'][player].move(Ship.MOV_FORWARDS)
 
-@handler.keyup(const.K_s)
-def move_up_stop(context):
-    context.ship.move(Ship.MOV_BACKWARDS, stop=True)
+@handler.keyup(const.K_w, const={'player': 1})
+@handler.keyup(const.K_i, const={'player': 2})
+@handler.keyup(const.K_UP, const={'player': 3})
+@handler.keyup(const.K_t, const={'player': 4})
+def move_up_stop(context, player):
+    context['players'][player].move(Ship.MOV_FORWARDS, stop=True)
+
+@handler.keydown(const.K_s, const={'player': 1})
+@handler.keydown(const.K_k, const={'player': 2})
+@handler.keydown(const.K_DOWN, const={'player': 3})
+@handler.keydown(const.K_g, const={'player': 4})
+def move_up(context, player):
+    context['players'][player].move(Ship.MOV_BACKWARDS)
+
+@handler.keyup(const.K_s, const={'player': 1})
+@handler.keyup(const.K_k, const={'player': 2})
+@handler.keyup(const.K_DOWN, const={'player': 3})
+@handler.keyup(const.K_g, const={'player': 4})
+def move_up_stop(context, player):
+    context['players'][player].move(Ship.MOV_BACKWARDS, stop=True)
+
+
+
+#################################################
+# Debug only code
 
 DEBUG = False
 if DEBUG:
