@@ -54,7 +54,9 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
         self._counter = pygame.time.get_ticks()
         self._rotate_direction = 0
         self._move_direction = 0
-        self._animation_counter = 0
+
+        self._engine_counter = 0
+        self._burn_counter = 0
 
         self._speedX = float(0)
         self._speedY = float(0)
@@ -155,29 +157,34 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
 
             # Updates side-burn
             if self._rotate_direction != Ship.ROT_STOP:
-                burn_image = ('%s - left - 1' % (self.model)) if self._rotate_direction == Ship.ROT_LEFT else ('%s - right - 1' % (self.model))
-                burn_image = Ship.SCALED_IMAGES.get(burn_image).copy()
+                if self._burn_counter == 0:
+                    burn_image = ('%s - left - 1' % (self.model)) if self._rotate_direction == Ship.ROT_LEFT else ('%s - right - 1' % (self.model))
+                    self._burn_counter = 1
+                elif self._burn_counter == 1:
+                    burn_image = ('%s - left - 2' % (self.model)) if self._rotate_direction == Ship.ROT_LEFT else ('%s - right - 2' % (self.model))
+                    self._burn_counter = 0
 
+                burn_image = Ship.SCALED_IMAGES.get(burn_image).copy()
                 burn_image.blit(output_image, output_image.get_rect())
                 output_image = burn_image
 
             # Updates engine
             if self._move_direction != Ship.MOV_STOP:
                 if self._move_direction == Ship.MOV_FORWARDS:
-                    engine_image = ('%s - %s' % (self.model, self.engine_on_image(self._animation_counter)))
-                    if self._animation_counter < 3:
-                        self._animation_counter += 1
+                    engine_image = ('%s - %s' % (self.model, self.engine_on_image(self._engine_counter)))
+                    if self._engine_counter < 3:
+                        self._engine_counter += 1
                     else:
-                        self._animation_counter = 1
+                        self._engine_counter = 1
                 elif self._move_direction == Ship.MOV_BACKWARDS:
-                    self._animation_counter = 0
+                    self._engine_counter = 0
                     engine_image = ('%s - off' % (self.model))
 
                 engine_image = Ship.SCALED_IMAGES.get(engine_image).copy()
                 engine_image.blit(output_image, output_image.get_rect())
                 output_image = engine_image
             else:
-                self._animation_counter = 0
+                self._engine_counter = 0
 
             # Ship Rotation
             self._direction = self._direction + (self._rotate_direction * self._turnspeed / Ship.FPS)

@@ -69,7 +69,7 @@ player1 = Ship(50, 50, base='purple')
 player1.set_MoveSpeed(10)
 player1.set_TurnSpeed(pi)
 sprites.add(player1)
-player1.set_direction(pi/4)
+player1.set_direction(0)
 
 player2 = Ship(600, 50, base='red')
 player2.set_MoveSpeed(10)
