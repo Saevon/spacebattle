@@ -54,17 +54,20 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
         self._counter = pygame.time.get_ticks()
         self._rotate_direction = 0
         self._move_direction = 0
-        self._animation_counter = 0
 
-        self._speedX = 0.0
-        self._speedY = 0.0
+        self._engine_counter = 0
+        self._burn_counter = 0
 
-        self._movespeed = 0.0
-        self._turnspeed = 0.0
+        self._speedX = float(0)
+        self._speedY = float(0)
 
-    def set_direction(self, dir, use_degrees=False):
-        if use_degrees:
-            dir = dir * pi / 180
+        self._movespeed = float(0)
+        self._turnspeed = float(0)
+
+        self._x = float(x)
+        self._y = float(y)
+
+    def set_direction(self, dir):
         self._direction = dir
 
     @property
@@ -118,15 +121,12 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             raise Exception('Invalid rotation direction')
 
 
-    def accelerate(self, rads, speed, use_degrees=False):
+    def accelerate(self, rads, speed):
         '''
 
         '''
         if speed == 0:
             return
-
-        if use_degrees:
-            rads = rads * pi / 180
 
         rads -= pi / 2
         self._speedX += cos(rads) * speed
@@ -157,30 +157,34 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
 
             # Updates side-burn
             if self._rotate_direction != Ship.ROT_STOP:
-                burn_image = ('%s - left - 1' % (self.model)) if self._rotate_direction == Ship.ROT_LEFT else ('%s - right - 1' % (self.model))
-                burn_image = Ship.SCALED_IMAGES.get(burn_image).copy()
+                if self._burn_counter == 0:
+                    burn_image = ('%s - left - 1' % (self.model)) if self._rotate_direction == Ship.ROT_LEFT else ('%s - right - 1' % (self.model))
+                    self._burn_counter = 1
+                elif self._burn_counter == 1:
+                    burn_image = ('%s - left - 2' % (self.model)) if self._rotate_direction == Ship.ROT_LEFT else ('%s - right - 2' % (self.model))
+                    self._burn_counter = 0
 
+                burn_image = Ship.SCALED_IMAGES.get(burn_image).copy()
                 burn_image.blit(output_image, output_image.get_rect())
                 output_image = burn_image
 
             # Updates engine
             if self._move_direction != Ship.MOV_STOP:
                 if self._move_direction == Ship.MOV_FORWARDS:
-                    engine_image = ('%s - %s' % (self.model, self.engine_on_image(self._animation_counter)))
-                    if self._animation_counter < 3:
-                        self._animation_counter += 1
+                    engine_image = ('%s - %s' % (self.model, self.engine_on_image(self._engine_counter)))
+                    if self._engine_counter < 3:
+                        self._engine_counter += 1
                     else:
-                        self._animation_counter = 1
+                        self._engine_counter = 1
                 elif self._move_direction == Ship.MOV_BACKWARDS:
-                    self._animation_counter = 0
+                    self._engine_counter = 0
                     engine_image = ('%s - off' % (self.model))
 
                 engine_image = Ship.SCALED_IMAGES.get(engine_image).copy()
                 engine_image.blit(output_image, output_image.get_rect())
                 output_image = engine_image
             else:
-                self._animation_counter = 0
-
+                self._engine_counter = 0
 
             # Ship Rotation
             self._direction = self._direction + (self._rotate_direction * self._turnspeed / Ship.FPS)
@@ -188,11 +192,14 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             self.rect = self.image.get_rect(center = self.rect.center)
 
             # Ship Accelerate From Engine
-            self.accelerate(self._direction, self._move_direction * self._movespeed / Ship.FPS)
+            self.accelerate(self._direction, float(self._movespeed) * self._move_direction / Ship.FPS)
 
             # Ship Move
             # TODO: Make it not run off screen?
-            self.rect.centerx += self._speedX
-            self.rect.centery -= self._speedY
+            self._x += self._speedX
+            self._y -= self._speedY
+            
+            self.rect.centerx = self._x
+            self.rect.centery = self._y
 
 
