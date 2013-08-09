@@ -56,15 +56,16 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
         self._move_direction = 0
         self._animation_counter = 0
         
-        self._speedX = 0.0
-        self._speedY = 0.0
+        self._speedX = float(0)
+        self._speedY = float(0)
 
-        self._movespeed = 0.0
-        self._turnspeed = 0.0
+        self._movespeed = float(0)
+        self._turnspeed = float(0)
 
-    def set_direction(self, dir, use_degrees=False):
-        if use_degrees:
-            dir = dir * pi / 180
+        self._x = float(x)
+        self._y = float(y)
+
+    def set_direction(self, dir):
         self._direction = dir
 
     @property
@@ -118,15 +119,12 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             raise Exception('Invalid rotation direction')
 
 
-    def accelerate(self, rads, speed, use_degrees=False):
+    def accelerate(self, rads, speed):
         '''
 
         '''
         if speed == 0:
             return
-
-        if use_degrees:
-            rads = rads * pi / 180
 
         rads -= pi / 2
         self._speedX += cos(rads) * speed
@@ -181,18 +179,20 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             else:
                 self._animation_counter = 0
                 
-
             # Ship Rotation
             self._direction = self._direction + (self._rotate_direction * self._turnspeed / Ship.FPS)
             self.image = pygame.transform.rotate(output_image, self._direction * 180 / pi)
             self.rect = self.image.get_rect(center = self.rect.center)
 
             # Ship Accelerate From Engine
-            self.accelerate(self._direction, self._move_direction * self._movespeed / Ship.FPS)
+            self.accelerate(self._direction, float(self._movespeed) * self._move_direction / Ship.FPS)
 
             # Ship Move
             # TODO: Make it not run off screen?
-            self.rect.centerx += self._speedX
-            self.rect.centery -= self._speedY
+            self._x += self._speedX
+            self._y -= self._speedY
+            
+            self.rect.centerx = self._x
+            self.rect.centery = self._y
 
 
