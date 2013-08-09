@@ -138,11 +138,11 @@ class EventHandler(object):
 
 
     def __call__(self, events):
-        self.handle(events, self.context)
+        self.handle(events)
 
     def _get_modifiers(self, flag):
         '''
-        Transforms the pygame modifiers into EventHandler modifiers
+        HELPER: Transforms the pygame modifiers into EventHandler modifiers
         '''
         modifiers = 0
 
@@ -152,39 +152,44 @@ class EventHandler(object):
 
         return modifiers
 
-    def handle(self, events, context):
+    def _call_handlers(self, handlers):
         '''
-        Handles each of the given events with the given context
+        HELPER: calls a list of handlers
         '''
-        context.handler = self
+        if not handlers:
+            return
+
+        for handler in handlers:
+            handler(self.context)
+
+    def handle(self, events):
+        '''
+        Handles each of the given events
+        '''
+        self.context.handler = self
+        context = self.context
 
         for event in events:
             context.event = event
 
             if event.type == const.QUIT:
-                map(lambda handler: handler(event), self.on_quit)
+                self._call_handlers(self.on_quit)
             elif event.type == const.KEYDOWN:
                 mod = self._get_modifiers(event.mod)
                 handlers = self.on_shortcut.get(mod, False)
                 if handlers:
                     handlers = handlers.get(event.key, False)
-                    if handlers:
-                        map(lambda handler: handler(context), handlers)
+                    self._call_handlers(handlers)
 
                 handlers = self.on_keydown.get(event.key, False)
-                if handlers:
-                    map(lambda handler: handler(context), handlers)
+                self._call_handlers(handlers)
             elif event.type == const.KEYUP:
                 handlers = self.on_keyup.get(event.key, False)
-                if handlers:
-                    map(lambda handler: handler(context), handlers)
+                self._call_handlers(handlers)
             elif event.type == const.MOUSEBUTTONDOWN:
                 handlers = self.on_mouseclick.get(event.button, False)
-                if handlers:
-                    map(lambda handler: handler(context), handlers)
-
+                self._call_handlers(handlers)
 
             # generic events
             handlers = self.on_generic.get(event.type, False)
-            if handlers:
-                map(lambda handler: handler(context), handlers)
+            self._call_handlers(handlers)
