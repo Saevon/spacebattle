@@ -30,8 +30,8 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
 
             rect = value.get_rect()
 
-            width = rect.width / 4
-            height = rect.height / 4
+            width = rect.width / 5
+            height = rect.height / 5
 
             Ship.SCALED_IMAGES[key] = pygame.transform.smoothscale(
                 value,
@@ -55,7 +55,7 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
         self._rotate_direction = 0
         self._move_direction = 0
         self._animation_counter = 0
-        
+
         self._speedX = 0.0
         self._speedY = 0.0
         self._speed = 0.0
@@ -170,7 +170,7 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
                 output_image = engine_image
             else:
                 self._animation_counter = 0
-                
+
 
             # Ship Rotation
             self._direction = self._direction + (self._rotate_direction * pi / Ship.FPS)
