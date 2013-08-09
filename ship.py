@@ -147,7 +147,7 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
 
             # Updates side-burn
             if self._rotate_direction != Ship.ROT_STOP:
-                burn_image = 'ship1 - left' if self._rotate_direction == Ship.ROT_LEFT else 'ship1 - right'
+                burn_image = 'ship1 - left - 1' if self._rotate_direction == Ship.ROT_LEFT else 'ship1 - right - 1'
                 burn_image = Ship.SCALED_IMAGES.get(burn_image).copy()
 
                 burn_image.blit(output_image, output_image.get_rect())
