@@ -1,4 +1,4 @@
-from event_handler import EventHandler, Mods
+from abstract.event_handler import EventHandler, Mods
 from pygame import locals as const
 from ship import Ship
 

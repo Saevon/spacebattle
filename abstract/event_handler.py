@@ -139,8 +139,19 @@ class EventHandler(object):
         loc = self.on_generic
         return EventHandler._append_wrapper_with_const(loc, key, const)
 
+    def tick(self, time=1000):
+        '''
+        Adds a handler that gets called every time milliseconds
 
+        callback(context, time):
+            time `int`
+                how long since the last call in ticks
 
+        Warning: this will never go faster then the FPS clock
+            so use the given time variable in case some time was skipped
+        Warning: something needs to be triggering the tick event
+        '''
+        # TODO
 
 
     #######################################################
