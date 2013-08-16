@@ -1,3 +1,4 @@
+from time import time
 
 
 class BaseMediatorEvent(Exception):
@@ -24,6 +25,65 @@ class MediatorException(Exception):
     A base exception raised by mediator objects if they break in their main interface
     '''
 
+class Clock(object):
+    '''
+    A simple clock that finds out how much time passed since its last call
+    '''
+
+    def __init__(self, fps=None):
+        self.fps = fps
+
+        self.reset()
+
+    def delta(self):
+        '''
+        Returns the time in milliseconds since the last call of this method
+        '''
+        now = time()
+
+        # If we have no time, then the first time we call delta is the starting time
+        # aka delta == 0 as no time passed
+        if self._time is None:
+            delta = 0
+        else:
+            delta = now - self._time
+
+        # Make sure to update the current time
+        self._time = now
+
+        # TODO: update the FPS average
+
+        return delta
+
+    def fps_sleep(self):
+        '''
+        Sleeps until the clock is running N Frames per Second
+        This just ensures you run no faster than the fps, though you can
+        run slower
+        '''
+        if self.fps is None:
+            return
+        # TODO
+
+    def get_average_fps(self):
+        '''
+        Returns the current FPS average
+        '''
+        # TODO
+
+    def reset(self):
+        '''
+        Resets the clock, using the next delta() call to syncronize it
+        '''
+        self._time = None
+
+class BaseController(object):
+    def __call__(self, events):
+        '''
+        Proccesses the given events
+        '''
+
+
 class Mediator(object):
     '''
     A MVC facade, it allows you to group Models, Views and Controllers into differing tasks
@@ -37,9 +97,24 @@ class Mediator(object):
         Controller: EventManager
     '''
 
-    def __init__(self):
+    def __init__(self, clock=None):
+        '''
+        This should set defaults for required instance variables, _preload should
+        do any other start-up code
+        '''
         self.is_frozen = True
         self.is_alive = True
+        self.has_started = False
+
+        self._child = None
+
+        if clock is None:
+            clock = Clock()
+        self.clock = clock
+
+        self.views = []
+        self.models = []
+        self.controller = BaseController()
 
     #######################################################
     # Mediator Events
@@ -119,7 +194,7 @@ class Mediator(object):
     #######################################################
 
     @classmethod
-    def load(cls):
+    def load_class(cls):
         '''
         Loads all the data this MediatorClass needs to run.
         Load does not need to be called, as just running an instance will
@@ -130,7 +205,7 @@ class Mediator(object):
         if getattr(cls, 'is_loaded', False):
             return
 
-        msgs = cls._load()
+        msgs = cls._load_class()
 
         # Allow non-generator methods as well
         if msgs is None:
@@ -144,7 +219,7 @@ class Mediator(object):
         cls.is_loaded = True
 
     @classmethod
-    def unload(cls):
+    def unload_class(cls):
         '''
         Unloads all the data this MediatorClass needs to run.
         This is used when this MediatorClass will not be used for a long while
@@ -152,7 +227,7 @@ class Mediator(object):
         if not getattr(cls, 'is_loaded', False):
             raise MediatorException("Can't unload MediatorClass, it wasn't loaded")
 
-        msgs = cls._unload()
+        msgs = cls._unload_class()
 
         # Allow non-generator methods as well
         if msgs is None:
@@ -165,51 +240,108 @@ class Mediator(object):
         # Mark this class as unloaded
         cls.is_loaded = False
 
-    def tick(self, screen, events, delta_ms):
+    def run(self, screen):
         '''
-        Process the given events, then update the view for this mediator
+        Run the current Mediator until it quits
         '''
-        if self.is_frozen:
-            self.unfreeze()
-
-        if self._child:
-            method = self._child.tick
-            exception_type = MediatorParentEvent
-        else:
-            method = self._tick
-            exception_type = MediatorEvent
-
-        # Run the tick code, catching any of the raised MediatorEvents
         try:
-            method(screen, events, delta_ms)
-        except exception_type as event:
-            handler = getattr(self, event.HANDLER, False)
-            if not handler:
-                raise MediatorException('Mediator Event handler does not exist: %s' % event.HANDLER)
-            handler(event)
-        except BaseMediatorEvent as err:
-            raise MediatorException("Invalid MediatorEvent, not caught by current handler: %s" % err)
+            while True:
+                self._run(screen)
+        except BaseMediatorEvent:
+            pass
 
     def draw(self, screen):
         '''
         Draws the view unto the given screen without doing any updates
         '''
-        self._draw(screen)
+        for view in self.views:
+            view.draw(screen)
+
+    def update(self, delta_time):
+        '''
+        Updates the models, then the views with the new time delta
+        '''
+        for model in self.models:
+            model.update(delta_time)
+
+        for view in self.views:
+            view.update(delta_time)
+
+    def handle_events(self, events):
+        '''
+        Gets the controller to proccess the passed in events
+        '''
+        self.controller(events)
+
+    def get_events(self):
+        '''
+        Returns a list of events that got generated since the last call of this method
+        '''
+        return []
 
     #######################################################
     # Private Helpers
     #######################################################
 
-    def _tick(self, screen, events, delta_ms):
+    def _run(self, screen):
         '''
-        Called every tick when you're the active mediator
+        Starts up either you or your child
         '''
+        # Remember to run your child code instead if you have a child
+        if self._child:
+            method = self._child._run
+            exception_type = MediatorParentEvent
+        else:
+            method = self._loop
+            exception_type = MediatorEvent
+
+        # Run the tick code, catching any of the raised MediatorEvents
+        try:
+            method(screen)
+        except BaseMediatorEvent as event:
+            # Any events not of the valid type get sent to the parent
+            if not isinstance(event, exception_type):
+                raise event
+
+            handler = getattr(self, event.HANDLER, False)
+            if not handler:
+                raise MediatorException(
+                    'Mediator Event handler does not exist: %s' % event.HANDLER
+                )
+            handler(event)
+
+    def _loop(self, screen):
+        '''
+        Called to begin the main loop for this Mediator
+        '''
+        # Start up, throwing out the loading messages
+        if not self.has_started:
+            [msg for msg in self.preload(screen)]
+
+        if self.is_frozen:
+            self.unfreeze()
+
+        while True:
+            self._tick(screen)
+
+    def _tick(self, screen):
+        '''
+        Runs throught one iteration of the main loop for this Mediator
+        '''
+        # Calculate how long its been since the last call
+        delta_time = self.clock.delta()
+
         # Process the events
-        self.event_manager.handle(events)
+        self.handle_events(self.get_events())
 
         # Re-draw the view
-        self.update(delta_ms)
+        self._clear_screen(screen)
+        self.update(delta_time)
         self.draw(screen)
+        self._draw_screen(screen)
+
+        # ensure we run with a proper FPS
+        self.clock.fps_sleep()
 
     #######################################################
     # Events (Not for Public use)
@@ -222,6 +354,9 @@ class Mediator(object):
         '''
         if not self.is_frozen:
             raise MediatorException("Mediator already unfrozen")
+
+        # Restart the timer to now
+        self.clock.reset()
 
         self.is_frozen = False
         self._unfreeze()
@@ -238,13 +373,33 @@ class Mediator(object):
         self.is_frozen = True
         self._freeze()
 
+    def preload(self, screen):
+        '''
+        Loads up the class right before it starts for the first time
+        This method will not change the screen
+
+        This is a generator
+        '''
+        if self.has_started:
+            return
+        self.has_started = True
+
+        msgs = self._preload(screen)
+
+        # We might not have a generator
+        if msgs is None:
+            return
+
+        for msg in msgs:
+            yield msg
+
     def finish(self):
         '''
         Calls the finish handler for the current mediator
 
         NOT for public use
         '''
-        if self.is_alive:
+        if not self.is_alive:
             raise MediatorException("Mediator already finished")
 
         self.is_alive = False
@@ -255,17 +410,34 @@ class Mediator(object):
     #######################################################
 
     @classmethod
-    def _load(cls):
+    def _load_class(cls):
         '''
         Called to load the classes variables for later initialization
         This method should be a generator that provides loading progress
         '''
 
     @classmethod
-    def _unload(cls):
+    def _unload_class(cls):
         '''
         Called to unload the classes variables
         This method should be a generator that provides unloading progress
+        '''
+
+    def _clear_screen(self, screen):
+        '''
+        Used to ensure the screen buffer is ready to be drawn to
+        '''
+
+    def _draw_screen(self, screen):
+        '''
+        Ensures the screen is drawn unto the monitor
+        '''
+
+    def _preload(self, screen):
+        '''
+        Called when the class is started (unfreezed) for the first time
+        This method should be a generator that provides unloading progress
+        This should not change the screen
         '''
 
     def _freeze(self):
@@ -291,20 +463,6 @@ class Mediator(object):
         Gets called when a child pops, returning a value
         '''
 
-    def _draw(self, screen):
-        '''
-        Called every time we need to re-draw the display
-        '''
-
-    def _update_views(self, delta_time):
-        '''
-        Called when we need to update the views (animate)
-        '''
-
-    def _update_models(self, delta_time):
-        '''
-        Called when we need to update the models
-        '''
 
 
 

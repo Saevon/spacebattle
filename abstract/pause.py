@@ -1,12 +1,12 @@
 from mediator import Mediator, MediatorEvent, MediatorException
 
 
-class PauseMediator(Mediator):
+class BasePauseMediator(Mediator):
     '''
     A Mediator that shows a pause menu
     '''
 
-    def __init__(self, mediator):
+    def __init__(self, mediator, clock=None):
         '''
         A mediator that shows a pause menu, restoring the given mediator once resumed
         or closing it if exiting
@@ -15,6 +15,8 @@ class PauseMediator(Mediator):
             raise MediatorException("Can't pause without a Mediator sub-class to pause/resume")
 
         self._mediator = mediator
+
+        super(BasePauseMediator, self).__init__(clock)
 
     #######################################################
     # Mediator Events
@@ -30,7 +32,8 @@ class PauseMediator(Mediator):
         '''
         Mediator Event Handler for the ResumeEvent
         '''
-        # When we close we also close our saved mediator, so we remove it instead
+        # When we close we also close our saved mediator,
+        # We don't want that so we set it to None instead
         mediator = self._mediator
         self._mediator = None
 
@@ -39,8 +42,8 @@ class PauseMediator(Mediator):
 
 
     def finish(self):
-        # Note: as an abstract Mediator, we don't touch the _finish method, that is only for
-        # a concrete Mediator
+        # Note: as an abstract Mediator, we don't touch the _finish method,
+        # that is only for a concrete Mediator
 
         # We need to ensure when we close, we also close the saved mediator
         # unless we don't have one (as we're resuming it)
@@ -48,6 +51,6 @@ class PauseMediator(Mediator):
             self._mediator.finish()
             self._mediator = None
 
-        super(PauseMediator, self).finish()
+        super(BasePauseMediator, self).finish()
 
 

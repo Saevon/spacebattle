@@ -24,7 +24,7 @@ class Mods:
         const.KMOD_CTRL: CTRL,
     }
 
-class EventHandler(object):
+class EventManager(object):
 
 
     def __init__(self, context=None):
@@ -96,7 +96,7 @@ class EventHandler(object):
             self.on_shortcut[modifiers][key] = []
 
         loc = self.on_shortcut[modifiers]
-        return EventHandler._append_wrapper_with_const(loc, key, const)
+        return EventManager._append_wrapper_with_const(loc, key, const)
 
     def keyup(self, key, const=None):
         '''
@@ -107,7 +107,7 @@ class EventHandler(object):
             self.on_keyup[key] = []
 
         loc = self.on_keyup
-        return EventHandler._append_wrapper_with_const(loc, key, const)
+        return EventManager._append_wrapper_with_const(loc, key, const)
 
     def keydown(self, key, const=None):
         '''
@@ -118,7 +118,7 @@ class EventHandler(object):
             self.on_keydown[key] = []
 
         loc = self.on_keydown
-        return EventHandler._append_wrapper_with_const(loc, key, const)
+        return EventManager._append_wrapper_with_const(loc, key, const)
 
     def mouseclick(self, key, const=None):
         handlers = self.on_mouseclick.get(key, False)
@@ -126,7 +126,7 @@ class EventHandler(object):
             self.on_mouseclick[key] = []
 
         loc = self.on_mouseclick
-        return EventHandler._append_wrapper_with_const(loc, key, const)
+        return EventManager._append_wrapper_with_const(loc, key, const)
 
     def event(self, key, const=None):
         '''
@@ -137,7 +137,7 @@ class EventHandler(object):
             self.on_generic[key] = []
 
         loc = self.on_generic
-        return EventHandler._append_wrapper_with_const(loc, key, const)
+        return EventManager._append_wrapper_with_const(loc, key, const)
 
     def tick(self, time=1000):
         '''
@@ -160,7 +160,7 @@ class EventHandler(object):
 
     def _get_modifiers(self, flag):
         '''
-        HELPER: Transforms the pygame modifiers into EventHandler modifiers
+        HELPER: Transforms the pygame modifiers into EventManager modifiers
         '''
         modifiers = 0
 

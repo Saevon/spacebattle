@@ -40,7 +40,7 @@ class Celestial(Sprite, well.GravityWell):
         self.rect.centerx = x
         self.rect.centery = y
 
-        self._counter = pygame.time.get_ticks()
+        self._counter = 0
         self._delay = 1000 / Celestial.FPS
 
         self._pullable = set()
@@ -53,9 +53,10 @@ class Celestial(Sprite, well.GravityWell):
     def y(self):
         return self.rect.centery
 
-    def update(self, time):
-        if time > self._counter + self._delay:
-            self._counter = time
+    def update(self, delta_time):
+        self._counter += delta_time
+        if self._counter > self._delay:
+            self._counter = 0
 
             self._update()
 
@@ -65,6 +66,8 @@ class Celestial(Sprite, well.GravityWell):
     def _update(self):
         pass
 
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
 
     def _pull_obj(self, obj):
         dx = obj.x - self.x
@@ -136,7 +139,7 @@ class Planet(Celestial, ImageBatch):
         self.rads %= 2 * pi
 
         self.rect.centerx = self.orbit.x + self.distance * cos(self.rads)
-        self.centery = self.orbit.y + self.distance * sin(self.rads)
+        self.rect.centery = self.orbit.y + self.distance * sin(self.rads)
 
 
     def orbit(self, obj, distance, speed=None):

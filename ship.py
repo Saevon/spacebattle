@@ -24,8 +24,8 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
 
         yield '  Resizing ImageBatch for %s' % cls.__name__
 
-        Ship.SCALED_IMAGES = {}
-        for key, value in Ship.IMAGES.iteritems():
+        cls.SCALED_IMAGES = {}
+        for key, value in cls.IMAGES.iteritems():
             yield '    %s' % key
 
             rect = value.get_rect()
@@ -33,7 +33,7 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             width = rect.width / 5
             height = rect.height / 5
 
-            Ship.SCALED_IMAGES[key] = pygame.transform.smoothscale(
+            cls.SCALED_IMAGES[key] = pygame.transform.smoothscale(
                 value,
                 (width, height)
             )
@@ -51,7 +51,7 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
 
         self._direction = 0
         self._delay = 1000 / Ship.FPS
-        self._counter = pygame.time.get_ticks()
+        self._counter = 0
         self._rotate_direction = 0
         self._move_direction = 0
 
@@ -143,9 +143,10 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             3: 'on - 3'
         }[counter]
 
-    def update(self, time):
-        if time > self._counter + self._delay:
-            self._counter = time
+    def update(self, delta_time):
+        self._counter += delta_time
+        if self._counter > self._delay:
+            self._counter = 0
 
             # Base image right now
             base_image = Ship.SCALED_IMAGES.get('%s - %s' % (self.model, self.base))
@@ -198,8 +199,11 @@ class Ship(pygame.sprite.Sprite, ImageBatch):
             # TODO: Make it not run off screen?
             self._x += self._speedX
             self._y -= self._speedY
-            
+
             self.rect.centerx = self._x
             self.rect.centery = self._y
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
 
 
