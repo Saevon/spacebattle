@@ -185,7 +185,7 @@ class Mediator(object):
             self._child.freeze()
 
         # Start up the new mediator
-        self._child = event.new
+        self._child = event.mediator
         self._child.unfreeze()
 
 

@@ -83,12 +83,13 @@ class PygameMediatorMixin(object):
         pygame.display.update()
 
 
-from menu.controllers import handler
+from menu.controllers import game_handler, pause_handler
 import background
 from celestials import Sun, Planet
 from ship import Ship
 
 from abstract.view import ImageView
+from abstract import pause
 from math import pi
 
 class MainMediator(mediator.Mediator):
@@ -102,16 +103,33 @@ class MainMediator(mediator.Mediator):
         raise mediator.Mediator.PopEvent()
 
 
+class PauseMediator(PygameMediatorMixin, pause.BasePauseMediator):
+    def _preload(self, screen):
+        yield 'Setting Screenshot'
+        screenshot = screen.copy()
+        yield
+        self._mediator.draw(screenshot)
+        yield
+
+        self.views.append(ImageView(screenshot))
+
+        self.controller = pause_handler
+        self.controller.context.mediator = self
+
 class GameMediator(PygameMediatorMixin, mediator.Mediator):
 
     FPS = 30
+
+    def pause(self):
+        pause = PauseMediator(self)
+        raise mediator.Mediator.SwapForEvent(pause, pop=False)
 
     def _preload(self, screen):
         rect = screen.get_rect()
         resolution = (rect.width, rect.height)
 
         yield 'Loading Events'
-        self.controller = handler
+        self.controller = game_handler
         self.controller.context.mediator = self
 
         yield 'Loading Background'
